@@ -240,8 +240,9 @@ if(postVolume != nullptr && tr->GetParticleDefinition()->GetParticleName() == "o
   // Check scoring volume 2
   if (volume == fScoringVolume2) {
     G4String name = postVolume->GetName();
-    /*
+    ///*
     if ((name.find("Teflon") != std::string::npos && tr->GetParticleDefinition()->GetParticleName() == "opticalphoton") || (name == "World" && tr->GetParticleDefinition()->GetParticleName() == "opticalphoton")) {
+      /*
             G4ThreeVector momDir = step->GetTrack()->GetMomentumDirection();  // 단위벡터
             G4ThreeVector yAxis(0, 1, 0);  // Y축
             // 각도 계산 (라디안 → 도)
@@ -251,18 +252,24 @@ if(postVolume != nullptr && tr->GetParticleDefinition()->GetParticleName() == "o
             if (jobId) {
               std::string fileName = "Little_" + std::string(jobId) + "_" +std::to_string(tr->GetParticleDefinition()->GetPDGEncoding())+".txt";
               std::ofstream outFile(fileName, std::ios::app);
-                      outFile << step->GetPreStepPoint()->GetKineticEnergy()/eV << "  eV,  "<< angleDeg << " deg" << G4endl;
+                      //outFile << step->GetPreStepPoint()->GetKineticEnergy()/eV << "  eV,  "<< angleDeg << " deg" << G4endl;
             }
+                      */
+        analysisManager->FillH2(101, step->GetPostStepPoint()->GetPosition()[1] / cm, step->GetPostStepPoint()->GetPosition()[0] / cm);
         auto* info = dynamic_cast<B1MyTrackInformation*>(tr->GetUserInformation());
         if (info) {
             info->AddReflection();
+            //G4cout << "yeah" << G4endl;
         }
     }
-        */
+        //*/
     B1EventAction* eventAction = (B1EventAction*)G4EventManager::GetEventManager()->GetUserEventAction();
     if (tr->GetParticleDefinition()->GetParticleName() == "opticalphoton" &&
     step->GetPostStepPoint()->GetTouchableHandle()->GetVolume()->GetName() == "SiPM") {
-      if (G4UniformRand() < 0.03) return;
+      if (G4UniformRand() < 0.03) {
+        step->GetTrack()->SetTrackStatus(fStopAndKill);
+        return;
+      }
 analysisManager->FillH1(30,(CLHEP::h_Planck * CLHEP::c_light / step->GetPreStepPoint()->GetKineticEnergy()) / CLHEP::nanometer);
     G4double time = step->GetPostStepPoint()->GetGlobalTime() / ns;
     G4double energy = step->GetPreStepPoint()->GetKineticEnergy() / eV;
@@ -283,6 +290,12 @@ G4double efficiency = sipmEfficiency2[idx];
   // 난수 발생 후 efficiency보다 작으면 기록
   if (G4UniformRand() < eff/100) {
     analysisManager->FillH1(33, time);
+    analysisManager->FillH2(100, step->GetPostStepPoint()->GetPosition()[1] / cm, step->GetPostStepPoint()->GetPosition()[0] / cm);
+
+    analysisManager->FillNtupleIColumn(0, 0, G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID()); // Ntuple ID 0, 칼럼 0
+    analysisManager->FillNtupleIColumn(0, 1, 1); // Ntuple ID 0, 칼럼 0
+    analysisManager->FillNtupleDColumn(0, 2, time);    // Ntuple ID 0, 칼럼 1
+    analysisManager->AddNtupleRow(0);
     //eventAction->CountDetectedPhoton2();
     auto* info = dynamic_cast<B1MyTrackInformation*>(tr->GetUserInformation());
     if(info->GetTag()==1) eventAction->CountDetectedPhotoncompt();
@@ -297,7 +310,7 @@ G4double efficiency = sipmEfficiency2[idx];
     analysisManager->FillH1(32,(CLHEP::h_Planck * CLHEP::c_light / step->GetPreStepPoint()->GetKineticEnergy()) / CLHEP::nanometer);
         if (info) {
             G4int reflections = info->GetReflectionCount();
-            analysisManager->FillH1(37, reflections);
+            analysisManager->FillH1(36, reflections);
             //G4cout << "reflect2   " << reflections << G4endl;
         }
       }
@@ -327,7 +340,7 @@ G4double efficiency = sipmEfficiency[idx];
         auto* info = dynamic_cast<B1MyTrackInformation*>(tr->GetUserInformation());
         if (info) {
             G4int reflections = info->GetReflectionCount();
-            analysisManager->FillH1(36, reflections);
+            //analysisManager->FillH1(36, reflections);
             //G4cout << "reflect1   " << reflections << G4endl;
         }
     }
@@ -339,7 +352,10 @@ G4double efficiency = sipmEfficiency[idx];
 }
 if (tr->GetParticleDefinition()->GetParticleName() == "opticalphoton" &&
     step->GetPostStepPoint()->GetTouchableHandle()->GetVolume()->GetName() == "SiPM2") {
-      if (G4UniformRand() < 0.03) return;
+      if (G4UniformRand() < 0.03) {
+        step->GetTrack()->SetTrackStatus(fStopAndKill);
+        return;
+      }
 analysisManager->FillH1(40,(CLHEP::h_Planck * CLHEP::c_light / step->GetPreStepPoint()->GetKineticEnergy()) / CLHEP::nanometer);
     G4double time = step->GetPostStepPoint()->GetGlobalTime() / ns;
     G4double energy = step->GetPreStepPoint()->GetKineticEnergy() / eV;
@@ -360,6 +376,14 @@ G4double efficiency = sipmEfficiency2[idx];
   // 난수 발생 후 efficiency보다 작으면 기록
   if (G4UniformRand() < eff/100) {
     analysisManager->FillH1(42, time);
+    analysisManager->FillH2(100, step->GetPostStepPoint()->GetPosition()[1] / cm, step->GetPostStepPoint()->GetPosition()[0] / cm);
+
+    // 튜플에 데이터 채우기
+    analysisManager->FillNtupleIColumn(0, 0, G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID()); // Ntuple ID 0, 칼럼 0
+    analysisManager->FillNtupleIColumn(0, 1, 2); // Ntuple ID 0, 칼럼 0
+    analysisManager->FillNtupleDColumn(0, 2, time);    // Ntuple ID 0, 칼럼 1
+    analysisManager->AddNtupleRow(0);
+
     auto* info = dynamic_cast<B1MyTrackInformation*>(tr->GetUserInformation());
     if(info->GetTag()==1) eventAction->CountDetectedPhotoncompt();
     if(info->GetTag()==2) eventAction->CountDetectedPhotonphot();
@@ -372,8 +396,8 @@ G4double efficiency = sipmEfficiency2[idx];
     //G4cout << "finally?" << G4endl;
     analysisManager->FillH1(41,(CLHEP::h_Planck * CLHEP::c_light / step->GetPreStepPoint()->GetKineticEnergy()) / CLHEP::nanometer);
         if (info) {
-            G4int reflections = info->GetReflectionCount();
-            analysisManager->FillH1(37, reflections);
+            //G4int reflections = info->GetReflectionCount();
+            //analysisManager->FillH1(37, reflections);
             //G4cout << "reflect2   " << reflections << G4endl;
         }
       }
@@ -403,7 +427,7 @@ G4double efficiency = sipmEfficiency[idx];
         auto* info = dynamic_cast<B1MyTrackInformation*>(tr->GetUserInformation());
         if (info) {
             G4int reflections = info->GetReflectionCount();
-            analysisManager->FillH1(36, reflections);
+            //analysisManager->FillH1(36, reflections);
             //G4cout << "reflect1   " << reflections << G4endl;
         }
     }
@@ -415,24 +439,30 @@ G4double efficiency = sipmEfficiency[idx];
 }
   G4Track* track = step->GetTrack();
 
-    if (tr->GetParticleDefinition()->GetParticleName() == "opticalphoton" && track->GetTrackStatus() == fStopAndKill) analysisManager->FillH1(35,(CLHEP::h_Planck * CLHEP::c_light / step->GetPreStepPoint()->GetKineticEnergy()) / CLHEP::nanometer);
+    if (tr->GetParticleDefinition()->GetParticleName() == "opticalphoton" && track->GetTrackStatus() == fStopAndKill) {
+      analysisManager->FillH1(35,(CLHEP::h_Planck * CLHEP::c_light / step->GetPreStepPoint()->GetKineticEnergy()) / CLHEP::nanometer);
+      auto* info = dynamic_cast<B1MyTrackInformation*>(tr->GetUserInformation());
+      G4int reflections = info->GetReflectionCount();
+            analysisManager->FillH1(37, reflections);
+    }
     // Optical photon 생성 카운트
-    /*
+    ///*
     if (tr->GetParticleDefinition()->GetParticleName() == "opticalphoton" &&
-        tr->GetCurrentStepNumber() == 0) {
+        tr->GetCurrentStepNumber() == 1) {
             G4ThreeVector momDir = step->GetTrack()->GetMomentumDirection();  // 단위벡터
             G4ThreeVector yAxis(0, 1, 0);  // Y축
             // 각도 계산 (라디안 → 도)
             double angleRad = momDir.angle(yAxis);
             double angleDeg = angleRad / CLHEP::deg;
-            G4cout << momDir << " | angle = " << angleRad << " rad, " << angleDeg << " deg" << G4endl;
+            //G4cout << momDir << " | angle = " << angleRad << " rad, " << angleDeg << " deg" << G4endl;
       G4double time = step->GetPostStepPoint()->GetGlobalTime() / ns;
       G4double energy = step->GetPostStepPoint()->GetKineticEnergy() / MeV;
-      analysisManager->FillH1(22, time);
+      //analysisManager->FillH1(22, time);
+      analysisManager->FillH1(22, angleDeg);
         eventAction->CountCreatedPhoton();
         analysisManager->FillH1(28,(CLHEP::h_Planck * CLHEP::c_light / step->GetPreStepPoint()->GetKineticEnergy()) / CLHEP::nanometer);
     }
-        */
+        //*/
     auto x = preStepPoint->GetPosition()[0] / cm;
     auto y = preStepPoint->GetPosition()[1] / cm;
     auto z = preStepPoint->GetPosition()[2] / cm;

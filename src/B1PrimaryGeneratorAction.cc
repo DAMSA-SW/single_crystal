@@ -65,18 +65,23 @@ B1PrimaryGeneratorAction::~B1PrimaryGeneratorAction()
 
 void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-    G4ParticleDefinition* Am241 = G4IonTable::GetIonTable()->GetIon(95, 241, 0.0); // Z=83, A=207
-    fParticleGun->SetParticleDefinition(Am241);
+    //G4ParticleDefinition* Am241 = G4IonTable::GetIonTable()->GetIon(11, 22, 0.0); // Z=83, A=207
+    //fParticleGun->SetParticleDefinition(Am241);
+    //G4ParticleDefinition* Am241 = G4IonTable::GetIonTable()->GetIon(56, 133, 0.0); // Z=83, A=207
+    //fParticleGun->SetParticleDefinition(Am241);
     //G4ParticleDefinition* bi207 = G4IonTable::GetIonTable()->GetIon(83, 207, 0.0); // Z=83, A=207
     //fParticleGun->SetParticleDefinition(bi207);
+    /*
     //G4ParticleDefinition* Co60 = G4IonTable::GetIonTable()->GetIon(27, 60, 0.0); // Z=83, A=207
     //fParticleGun->SetParticleDefinition(Co60);
     fParticleGun->SetParticleCharge(0.);
-    fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., -0.6*cm));
+    //fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., -0.6*cm));
+    fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., -1*cm));
     fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0., 0., 1.));
     fParticleGun->SetParticleEnergy(0.0);  // rest
     fParticleGun->GeneratePrimaryVertex(anEvent);
-    /*
+    */
+    ///*
     // 이벤트 액션 가져와서 theta/phi 전달
 auto eventAction = const_cast<B1EventAction*>(
     static_cast<const B1EventAction*>(
@@ -84,10 +89,10 @@ auto eventAction = const_cast<B1EventAction*>(
     )
 );
     // 입자 생성기 초기화
-    //G4ParticleDefinition* particle = G4ParticleTable::GetParticleTable()->FindParticle("gamma");
-    //fParticleGun->SetParticleDefinition(particle);
+    G4ParticleDefinition* particle = G4ParticleTable::GetParticleTable()->FindParticle("gamma");
+    fParticleGun->SetParticleDefinition(particle);
     G4double theta_min = 0.0;
-    G4double theta_max = 30.0 * deg;
+    G4double theta_max = 5.0 * deg;
     //G4double theta_max = 10.0 * deg;
     
     // 1. Uniform in cos(theta)
@@ -97,33 +102,31 @@ auto eventAction = const_cast<B1EventAction*>(
     G4double theta = std::acos(costheta);
     G4double phi = 2.0 * CLHEP::pi * G4UniformRand();
     //G4double E = 100*G4UniformRand();
-    G4double E = 1;
+    G4double E = 2000;
     G4double dirX = sintheta * std::cos(phi);
     G4double dirY = sintheta * std::sin(phi);
     G4double dirZ = costheta;
 
-    G4double radius = 0.45 * cm;
-    G4double y_range = 5.95 * cm;
+    G4double radius = 2.45 * cm;
+    G4double y_range = 2.45 * cm;
     G4double x = (2.0 * G4UniformRand() - 1.0) * radius;  // x in [-0.1 cm, 0.1 cm]
     G4double y = (2.0 * G4UniformRand() - 1.0) * y_range; // y in [-2.95 cm, 2.95 cm]
-    G4ThreeVector position(x, y, -0.6 * cm);
-    //G4ThreeVector position(0.6 * cm, 0, -0.49999 * cm);
+    //G4ThreeVector position(x, y, -2.6 * cm);
+    //G4ThreeVector position(0, -26*cm, 0);
+    G4ThreeVector position(x, -3*cm, y);
     fParticleGun->SetParticlePosition(position);
     // 4. Set momentum direction /////////////////////////////////////////////////////////important
-    fParticleGun->SetParticleMomentumDirection(G4ThreeVector(dirX, dirY, dirZ));
+    fParticleGun->SetParticleMomentumDirection(G4ThreeVector(dirX, dirZ, dirY));
     //fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0, 0, 1));
     //fParticleGun->SetParticleMomentumDirection(G4ThreeVector(-1, 0, 0));
-  
-    // ---------- 에너지 설정 (Co-60: 대표적 감마선 1.17 MeV & 1.33 MeV 중 택일) ----------
-    G4double energies[2] = {1.17 * MeV, 1.33 * MeV};
-    G4int index = G4RandFlat::shootInt(2);
-    fParticleGun->SetParticleEnergy(energies[index]);
-    eventAction->SetThetaPhi(theta, phi, x, y, energies[index]/MeV);
+    //fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0, 1, 0));
+
+    eventAction->SetThetaPhi(theta, phi, x, y, E);
     //fParticleGun->SetParticleEnergy(1.33*MeV);
-    //fParticleGun->SetParticleEnergy(E*MeV);
+    fParticleGun->SetParticleEnergy(E*MeV);
     // 이벤트에 입자 쏘기
     fParticleGun->GeneratePrimaryVertex(anEvent);
-    */
+    //*/
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -72,6 +72,13 @@ B1RunAction::B1RunAction()
        "Little_default.root";  // 기본 파일 이름 설정
  
    analysisManager->SetFileName(fileName);
+   analysisManager->SetNtupleMerging(true);
+
+analysisManager->CreateNtuple("Signal", "SiPM Hits per Event");
+analysisManager->CreateNtupleIColumn("EventID");
+analysisManager->CreateNtupleIColumn("SiPM");
+analysisManager->CreateNtupleDColumn("TimeBins"); // std::vector 연결
+analysisManager->FinishNtuple();
    
   std::vector<double> eAxis;
   //eAxis.push_back(0.1); 
@@ -228,7 +235,25 @@ B1RunAction::B1RunAction()
   analysisManager->CreateH2("first_d2_proton_ed", "Proton ed in the detector2", 133, 34.4, 34.4+13.3, 133, -13.3/2, 13.3/2); //97
 
   analysisManager->CreateH2("escape_opticalphoton_et", "photon E [MeV] (1 Mev to 10 GeV)  Theta [rad] out of target", ztAxis, xAxis); //98                             //5
-  analysisManager->CreateH2("produced_opticalphoton_et", "photon E [MeV] (1 Mev to 10 GeV)  Theta [rad] out of target", ztAxis, xAxis); //99                             //5
+  analysisManager->CreateH2("produced_opticalphoton_et",  "ref;Z [cm];X [cm]",
+  //200, -10., 10.,   // Z
+  200, -60., 60.,   // Z
+  100, -5., 5.      // X
+); //99
+  analysisManager->CreateH2(
+    "edep_xz",
+    "Energy deposition;Z [cm];X [cm]",
+    //200, -10., 10.,   // Z
+    200, -10., 60.,   // Z
+    100, -5., 5.      // X
+);
+analysisManager->CreateH2(
+  "ref_xz",
+  "ref;Z [cm];X [cm]",
+  //200, -10., 10.,   // Z
+  200, -60., 60.,   // Z
+  100, -5., 5.      // X
+);                             //101
 
 
   analysisManager->CreateH1("d1_all_ft", "All particles from the target in the detector1", 30,0,30); //0
@@ -253,8 +278,8 @@ B1RunAction::B1RunAction()
   analysisManager->CreateH1("d2_photon_e", "Photon Energy [MeV] in the detector2",eAxis); //18
   analysisManager->CreateH1("d2_neutron_e", "Neutron Energy [MeV] in the detector2",eAxis); //19
   analysisManager->CreateH1("w_all_ed", "Energy Deposit [MeV]",50,0,5); //20
-  analysisManager->CreateH1("d1_opticalphoton_et", "Opticalphoton Energy [eV] in the detector1",300, 0, 300); //21
-  analysisManager->CreateH1("d0_opticalphoton_et", "Opticalphoton Energy [eV] in the detector2",300, 0, 300); //22
+  analysisManager->CreateH1("d1_opticalphoton_et", "Opticalphoton Energy [eV] in the detector1",10000, 0, 1000); //21
+  analysisManager->CreateH1("Angle", "Opticalphoton Energy [eV] in the detector2",300, 0, 300); //22
   analysisManager->CreateH1("first_d1_electron_e", "Electron energy deposit [MeV] Global Time [ns] in the detector1", eAxis); //23
   analysisManager->CreateH1("first_d1_positron_te", "Positron energy deposit [MeV] Global Time [ns] in the detector1", eAxis); //24
   analysisManager->CreateH1("first_d1_photon_e", "Photon energy deposit [MeV] Global Time [ns] in the detector1", eAxis); //25
@@ -265,16 +290,16 @@ B1RunAction::B1RunAction()
   analysisManager->CreateH1("entered_shape", "Optical shape in the detector1", 500, 200, 700); //30
   analysisManager->CreateH1("Photon Z-E", "Photon Z-E", 300, 0, 0.3); //31
   analysisManager->CreateH1("detected_shape_v2", "Optical shape in the detector1", 500, 200, 700); //32
-  analysisManager->CreateH1("d1_opticalphoton_et_v2", "Opticalphoton Energy [eV] in the detector1",300, 0, 300); //33
+  analysisManager->CreateH1("d1_opticalphoton_et_v2", "Opticalphoton Energy [eV] in the detector1",10000, 0, 1000); //33
   analysisManager->CreateH1("AbsLength", "AbsLength",300, 0, 300); //34
   analysisManager->CreateH1("outed_shape", "Optical shape in the detector1", 500, 200, 700); //35
   analysisManager->CreateH1("Reflected1", "Reflected1",100, 0, 100); //36
   analysisManager->CreateH1("Reflected2", "Reflected2",100, 0, 100); //37
-  analysisManager->CreateH1("d2_opticalphoton_et", "Opticalphoton Energy [eV] in the detector1",300, 0, 300); //38
+  analysisManager->CreateH1("d2_opticalphoton_et", "Opticalphoton Energy [eV] in the detector1",10000, 0, 1000); //38
   analysisManager->CreateH1("detected2_shape", "Optical shape in the detector1", 500, 200, 700); //39
   analysisManager->CreateH1("entered2_shape", "Optical shape in the detector1", 500, 200, 700); //40
   analysisManager->CreateH1("detected2_shape_v2", "Optical shape in the detector1", 500, 200, 700); //41
-  analysisManager->CreateH1("d2_opticalphoton_et_v2", "Opticalphoton Energy [eV] in the detector1",300, 0, 300); //42
+  analysisManager->CreateH1("d2_opticalphoton_et_v2", "Opticalphoton Energy [eV] in the detector1",10000, 0, 1000); //42
 
 
 }

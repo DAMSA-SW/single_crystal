@@ -229,7 +229,7 @@ det_mat->SetMaterialPropertiesTable(mpt);
   G4double airRindex[nEntriesair] = { 1.0003, 1.0003 };
   G4MaterialPropertiesTable* airMPT = new G4MaterialPropertiesTable();
   airMPT->AddProperty("RINDEX", photonEnergyair, airRindex, nEntriesair);
-  world_mat->SetMaterialPropertiesTable(airMPT);
+  //world_mat->SetMaterialPropertiesTable(airMPT);
 //*/
   G4bool checkOverlaps = true;
 
@@ -258,11 +258,11 @@ det_mat->SetMaterialPropertiesTable(mpt);
                       checkOverlaps);        //overlaps checking
 
 // /*
-G4double tarCenter =   12.0*0.5*cm;
-//G4double tarCenter =   2*0.5*cm;
-G4double dx = 0.5*cm;
+G4double tarCenter =   5.0*0.5*cm;
+G4double dx = 2.5*cm;
 G4double dy = tarCenter;  // height → z방향 회전돼서 이제 y축이 됨
-G4double dz = 0.5*cm;
+G4double dz = 2.5*cm;
+//G4double sipmSizeXY = 5 * cm;
 G4double sipmSizeXY = 0.6 * cm;
 //    */
 /*
@@ -303,14 +303,16 @@ G4double sipmSizeXY = 4 * cm;
     G4MaterialPropertiesTable* teflonMPT = new G4MaterialPropertiesTable();
     const G4int num = 2;
     G4double ephoton[num] = {1.0 * eV, 6.0 * eV};
-    G4double reflectivity[num] = {0.98, 0.98};
+    //G4double reflectivity[num] = {0.98, 0.98};
+    G4double reflectivity[num] = {0.90, 0.90};
+    //G4double reflectivity[num] = {0, 0};
     //G4double reflectivity[num] = {1, 1};
     teflonMPT->AddProperty("REFLECTIVITY", ephoton, reflectivity, num);
     teflonSurface->SetMaterialPropertiesTable(teflonMPT);
 
     G4Material* teflon = nist->FindOrBuildMaterial("G4_TEFLON");
     G4double teflonThickness = 0.1;
- ///*
+ /*
 auto surface = new G4OpticalSurface("CsI_Air_Surface");
 surface->SetType(dielectric_dielectric);   // 둘 다 유전체
 surface->SetModel(unified);                // 통합 모델 (더 유연함)
@@ -321,12 +323,12 @@ surfaceProperty->AddConstProperty("REFLECTIVITY", 0.0, true);   // 0이면 반�
 surfaceProperty->AddConstProperty("TRANSMITTANCE", 1.0, true);  // 완전 투과 허용
 
 surface->SetMaterialPropertiesTable(surfaceProperty);
-new G4LogicalBorderSurface("Surface",   physTarget, physWorld, surface);
+//new G4LogicalBorderSurface("Surface",   physTarget, physWorld, surface);
 //*/
 /*
-G4double teflon_thickness2 = 0.2 * mm;   // 커버 두께
+G4double teflon_thickness2 = 2.0 * mm;   // 커버 두께
 G4double teflon_inner     = 1.0 * mm;   // 안쪽 길이
-G4double teflon_outer     = 1.2 * mm;   // 바깥쪽 길이
+G4double teflon_outer     = 3.0 * mm;   // 바깥쪽 길이
 
 G4Box* solidLegZ = new G4Box("LegZ", teflon_thickness2 / 2, dy, teflon_outer / 2);
 G4Box* solidLegX = new G4Box("LegX", teflon_inner / 2, dy, teflon_thickness2 / 2);
@@ -378,7 +380,9 @@ for (size_t i = 0; i < 4; ++i) {
 //*/
 
 G4Box* solidBottomFull = new G4Box("TeflonBottomFull", dx, teflonThickness/2, dz);
+//G4Box* solidBottomFull = new G4Box("TeflonBottomFull", dx+teflon_thickness2, teflonThickness/2, dz+teflon_thickness2);
 G4Box* solidTopFull    = new G4Box("TeflonTopFull",    dx, teflonThickness/2, dz);
+//G4Box* solidTopFull    = new G4Box("TeflonTopFull",    dx+teflon_thickness2, teflonThickness/2, dz+teflon_thickness2);
 
 G4Box* solidHole = new G4Box("SiPMHole", sipmSizeXY/2, teflonThickness/2, sipmSizeXY/2); 
 // y 두께는 충분히 크게 (관통하도록)
@@ -392,8 +396,8 @@ G4SubtractionSolid* solidTopWithHole = new G4SubtractionSolid(
 );
 
 // 논리 볼륨
-G4LogicalVolume* logicBottom = new G4LogicalVolume(solidBottomWithHole, teflon, "TeflonBottom");
-//G4LogicalVolume* logicBottom = new G4LogicalVolume(solidBottomFull, teflon, "TeflonBottom");
+//G4LogicalVolume* logicBottom = new G4LogicalVolume(solidBottomWithHole, teflon, "TeflonBottom");
+G4LogicalVolume* logicBottom = new G4LogicalVolume(solidBottomFull, teflon, "TeflonBottom");
 G4LogicalVolume* logicTop    = new G4LogicalVolume(solidTopWithHole,    teflon, "TeflonTop");
 
     G4Box* teflonLeft   = new G4Box("TeflonLeft",    teflonThickness/2, dy, dz); // -x
@@ -402,20 +406,20 @@ G4LogicalVolume* logicTop    = new G4LogicalVolume(solidTopWithHole,    teflon, 
     G4Box* teflonFront  = new G4Box("TeflonFront",   dx, dy, teflonThickness/2); // +z
     G4LogicalVolume* logicLeft   = new G4LogicalVolume(teflonLeft,   teflon, "TeflonLeft");
     G4LogicalVolume* logicRight  = new G4LogicalVolume(teflonRight,  teflon, "TeflonRight");
-    //G4LogicalVolume* logicBack   = new G4LogicalVolume(teflonBack,   teflon, "TeflonBack");
-    //G4LogicalVolume* logicFront  = new G4LogicalVolume(teflonFront,  teflon, "TeflonFront");
+    G4LogicalVolume* logicBack   = new G4LogicalVolume(teflonBack,   teflon, "TeflonBack");
+    G4LogicalVolume* logicFront  = new G4LogicalVolume(teflonFront,  teflon, "TeflonFront");
 
 // 중심 부분을 제거할 박스 (중심 기준으로 y 방향 5cm = 총 10cm 제거)
-G4Box* cutBox = new G4Box("CutBox", dx, 5*cm, teflonThickness/2);  
+//G4Box* cutBox = new G4Box("CutBox", dx, 5*cm, teflonThickness/2);  
 // dx+1, thickness 전체를 넘게 잡는 이유: 완전 관통되도록 하기 위함
 
 // 위치는 y=0에 놓아서 중앙 제거
-G4SubtractionSolid* subBack = new G4SubtractionSolid("SubTeflonBack", teflonBack, cutBox, 0, G4ThreeVector(0, 0, 0));
-G4SubtractionSolid* subFront = new G4SubtractionSolid("SubTeflonFront", teflonFront, cutBox, 0, G4ThreeVector(0, 0, 0));
+//G4SubtractionSolid* subBack = new G4SubtractionSolid("SubTeflonBack", teflonBack, cutBox, 0, G4ThreeVector(0, 0, 0));
+//G4SubtractionSolid* subFront = new G4SubtractionSolid("SubTeflonFront", teflonFront, cutBox, 0, G4ThreeVector(0, 0, 0));
 
 // 논리 볼륨 생성
-G4LogicalVolume* logicBack = new G4LogicalVolume(subBack, teflon, "TeflonBack");
-G4LogicalVolume* logicFront = new G4LogicalVolume(subFront, teflon, "TeflonFront");
+//G4LogicalVolume* logicBack = new G4LogicalVolume(subBack, teflon, "TeflonBack");
+//G4LogicalVolume* logicFront = new G4LogicalVolume(subFront, teflon, "TeflonFront");
     /*
     G4ThreeVector posLeft   = G4ThreeVector(-dx - teflonThickness/2 - teflon_thickness2, 0, 0);
     G4ThreeVector posRight  = G4ThreeVector( dx + teflonThickness/2 + teflon_thickness2, 0, 0);
@@ -423,7 +427,7 @@ G4LogicalVolume* logicFront = new G4LogicalVolume(subFront, teflon, "TeflonFront
     G4ThreeVector posFront  = G4ThreeVector(0, 0,  dz + teflonThickness/2 + teflon_thickness2);
     G4ThreeVector posBottom = G4ThreeVector(0, -dy - teflonThickness/2, 0);
     G4ThreeVector posTop = G4ThreeVector(0, +dy + teflonThickness/2, 0);
-    */
+    //*/
     ///*
     G4ThreeVector posBottom = G4ThreeVector(0, -dy - teflonThickness/2, 0);
     G4ThreeVector posTop = G4ThreeVector(0, +dy + teflonThickness/2, 0);
@@ -454,7 +458,7 @@ G4LogicalVolume* logicFront = new G4LogicalVolume(subFront, teflon, "TeflonFront
     new G4LogicalBorderSurface("SurfaceTop", physTarget, physTefTop,  teflonSurface);
     new G4LogicalBorderSurface("SurfaceBack",   physWorld, physTefBack,  teflonSurface);
     new G4LogicalBorderSurface("SurfaceFront",  physWorld, physTefFront,  teflonSurface);
-    */
+    //*/
 /*
     G4Material* aluminum = nist->FindOrBuildMaterial("G4_Al");
     G4double alThickness = 50 * micrometer;
@@ -502,7 +506,7 @@ G4LogicalVolume* logicFront = new G4LogicalVolume(subFront, teflon, "TeflonFront
 ///*
     // 추가 위치 (아래쪽)
     G4ThreeVector posSiPM_Down = G4ThreeVector(0, -dy - sipmThickness/2, 0);
-    new G4PVPlacement(0, posSiPM_Down, logicSiPM, "SiPM2", logicWorld, false, 1, checkOverlaps);
+    //new G4PVPlacement(0, posSiPM_Down, logicSiPM, "SiPM2", logicWorld, false, 1, checkOverlaps);
   //*/
 
 
